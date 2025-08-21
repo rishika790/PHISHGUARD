@@ -1,0 +1,148 @@
+{% extends "base.html" %}
+
+{% block title %}Home - PhishGuard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>PhishGuard</h1>
+    <p class="subtitle">Check if a website or file is Safe or Suspicious</p>
+
+    <div class="check-form">
+        <input type="text" id="urlInput" placeholder="Enter website URL (e.g., https://example.com)">
+        <button onclick="checkURL()" class="btn-primary">Check URL</button>
+    </div>
+
+    <div class="result-section">
+        <p id="result"></p>
+    </div>
+
+    <div class="features">
+        <h2>Why use PhishGuard?</h2>
+        <div class="feature-grid">
+            <div class="feature-item">
+                <h3>🔒 Secure</h3>
+                <p>Advanced ML algorithms detect threats</p>
+            </div>
+            <div class="feature-item">
+                <h3>⚡ Fast</h3>
+                <p>Get results in seconds</p>
+            </div>
+            <div class="feature-item">
+                <h3>📱 Easy</h3>
+                <p>Simple and intuitive interface</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container file-section">
+    <h2>Scan a file</h2>
+    <p class="subtitle">Upload a file to check if it's Safe or Suspicious</p>
+    <div class="check-form file-checker">
+        <input type="file" id="fileInput" class="file-input" />
+        <button onclick="checkFile()" class="btn-secondary">Check File</button>
+    </div>
+    <div class="result-section">
+        <p id="fileResult"></p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Enhanced checkURL function with history tracking
+async function checkURL() {
+    const url = document.getElementById("urlInput").value;
+    const resultElement = document.getElementById("result");
+
+    if (!url) {
+        alert("Please enter a URL");
+        return;
+    }
+
+    // Show loading state
+    resultElement.innerHTML = "Checking URL... <span class='loading'>⏳</span>";
+
+    try {
+        const response = await fetch("/check", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ url })
+        });
+
+        const data = await response.json();
+        
+        if (data.error) {
+            resultElement.innerHTML = `<span class="error">Error: ${data.error}</span>`;
+            return;
+        }
+
+        // Display result
+        const resultClass = data.result.toLowerCase();
+        resultElement.innerHTML = `<span class="result-${resultClass}">${data.result}</span>`;
+
+        // Save to history
+        saveToHistory(url, data.result);
+
+    } catch (error) {
+        resultElement.innerHTML = `<span class="error">Error: ${error.message}</span>`;
+    }
+}
+
+// Save URL check to history
+function saveToHistory(url, result) {
+    const history = JSON.parse(localStorage.getItem('urlHistory') || '[]');
+    const newEntry = {
+        url: url,
+        result: result,
+        timestamp: Date.now()
+    };
+    
+    // Add to beginning of array
+    history.unshift(newEntry);
+    
+    // Keep only last 50 entries
+    if (history.length > 50) {
+        history.pop();
+    }
+    
+    localStorage.setItem('urlHistory', JSON.stringify(history));
+}
+
+// Allow Enter key to submit
+document.getElementById('urlInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        checkURL();
+    }
+});
+
+// File check
+async function checkFile() {
+    const input = document.getElementById('fileInput');
+    const resultEl = document.getElementById('fileResult');
+    if (!input.files || input.files.length === 0) {
+        alert('Please choose a file');
+        return;
+    }
+    const file = input.files[0];
+    resultEl.innerHTML = `Checking file... <span class='loading'>⏳</span>`;
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+        const resp = await fetch('/check-file', { method: 'POST', body: formData });
+        const data = await resp.json();
+        if (data.error) {
+            resultEl.innerHTML = `<span class="error">Error: ${data.error}</span>`;
+            return;
+        }
+        const cls = (data.result || '').toLowerCase();
+        const sizeKB = Math.round((data.size_bytes || 0) / 1024);
+        resultEl.innerHTML = `<span class="result-${cls}">${data.result}</span> <span class="file-meta">(${data.filename} • ${sizeKB} KB)</span>`;
+    } catch (err) {
+        resultEl.innerHTML = `<span class="error">Error: ${err.message}</span>`;
+    }
+}
+</script>
+{% endblock %}

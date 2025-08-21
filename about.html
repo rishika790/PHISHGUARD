@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}About - PhishGuard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>About PhishGuard</h1>
+    
+    <div class="about-content">
+        <h2>What is PhishGuard?</h2>
+        <p>PhishGuard is an intelligent URL safety checker that helps protect users from phishing attacks and malicious websites. Our advanced machine learning algorithms analyze URLs in real-time to determine their safety level.</p>
+        
+        <h2>How it works</h2>
+        <p>PhishGuard uses multiple detection methods:</p>
+        <ul>
+            <li>Machine Learning Analysis</li>
+            <li>URL Structure Analysis</li>
+            <li>Domain Reputation Checking</li>
+            <li>Pattern Recognition</li>
+        </ul>
+        
+        <h2>Features</h2>
+        <ul>
+            <li>Real-time URL analysis</li>
+            <li>Instant safety results</li>
+            <li>User-friendly interface</li>
+            <li>Comprehensive reporting</li>
+        </ul>
+        
+        <h2>Safety tips</h2>
+        <ul class="tips-list">
+            <li>Hover links to preview the real destination before clicking.</li>
+            <li>Check the domain carefully for look‑alike characters and extra subdomains.</li>
+            <li>Never enter credentials on pages reached via unsolicited emails or DMs.</li>
+            <li>Use multi‑factor authentication on important accounts.</li>
+            <li>Keep your browser and extensions up to date.</li>
+        </ul>
+
+        <h2>FAQs</h2>
+        <div class="faq">
+            <details>
+                <summary>How accurate are the results?</summary>
+                <p>Results are heuristic and model‑based. Treat "Safe" as low risk, not a guarantee. When in doubt, avoid interacting with the site.</p>
+            </details>
+            <details>
+                <summary>Do you store the URLs I check?</summary>
+                <p>Checks happen statelessly on the server. Your recent checks can be stored locally in your browser if you use the History feature.</p>
+            </details>
+            <details>
+                <summary>Can I check files?</summary>
+                <p>Yes. Use the File Scanner on the home page. The current version uses safe heuristics; advanced scanning can be enabled later.</p>
+            </details>
+            <details>
+                <summary>What should I do if a site is flagged?</summary>
+                <p>Close the tab, do not enter personal information, and report the link to the service where you found it.</p>
+            </details>
+        </div>
+    </div>
+</div>
+{% endblock %} 

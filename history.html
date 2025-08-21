@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}History - PhishGuard{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h1>Check History</h1>
+    
+    <div class="history-content">
+        <p>View your previously checked URLs and their safety results.</p>
+        
+        <div class="history-list" id="historyList">
+            <!-- History items will be populated by JavaScript -->
+            <p class="no-history">No URLs checked yet. Start by checking a URL on the home page!</p>
+        </div>
+        
+        <div class="history-actions">
+            <button onclick="clearHistory()" class="btn-secondary">Clear History</button>
+            <button onclick="exportHistory()" class="btn-secondary">Export History</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Load history from localStorage
+function loadHistory() {
+    const history = JSON.parse(localStorage.getItem('urlHistory') || '[]');
+    const historyList = document.getElementById('historyList');
+    
+    if (history.length === 0) {
+        historyList.innerHTML = '<p class="no-history">No URLs checked yet. Start by checking a URL on the home page!</p>';
+        return;
+    }
+    
+    historyList.innerHTML = history.map(item => `
+        <div class="history-item ${item.result.toLowerCase()}">
+            <div class="history-url">${item.url}</div>
+            <div class="history-result">${item.result}</div>
+            <div class="history-time">${new Date(item.timestamp).toLocaleString()}</div>
+        </div>
+    `).join('');
+}
+
+// Clear history
+function clearHistory() {
+    if (confirm('Are you sure you want to clear all history?')) {
+        localStorage.removeItem('urlHistory');
+        loadHistory();
+    }
+}
+
+// Export history
+function exportHistory() {
+    const history = JSON.parse(localStorage.getItem('urlHistory') || '[]');
+    if (history.length === 0) {
+        alert('No history to export');
+        return;
+    }
+    
+    const csv = 'URL,Result,Timestamp\n' + 
+        history.map(item => `"${item.url}","${item.result}","${new Date(item.timestamp).toLocaleString()}"`).join('\n');
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'phishguard-history.csv';
+    a.click();
+    window.URL.revokeObjectURL(url);
+}
+
+// Load history when page loads
+document.addEventListener('DOMContentLoaded', loadHistory);
+</script>
+{% endblock %} 
